@@ -1,0 +1,2 @@
+# reversi
+for class
