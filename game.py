@@ -145,7 +145,7 @@ class Game:
         Return if no moves are available left in the game for either player. 
         """
 
-        return min(len(self.movesAvail('b')) len(self.movesAvail('w'))) == 0
+        return min(len(self.movesAvail('b')), len(self.movesAvail('w'))) == 0
 
 
     def boardFull(self) -> bool:

@@ -31,7 +31,7 @@ class Posn:
     def __hash__(self):
         return hash((self.n, self.m))
 
-    def add(self, posn: Posn) -> Posn:
+    def add(self, posn):
         return Posn(self.n + posn.n, self.m + posn.m)
 
 
