@@ -41,13 +41,18 @@ class Game:
     def __init__(self, board: Board):
         self.board = board
 
+    def getBoardValue(self, space: Posn) ->str:
+        """
+        Returns board value at given Posn
+        """
+        return self.board.board[space].value
 
     def playerPieces(self, player: str) -> set():
         """
         Return all the pieces that belong to the current player.
         """
 
-        return {k for k, v in self.board if v.value == player}
+        return {k for k, v in self.board.board.items() if v.value == player}
 
 
     def playerScore(self, player: str) -> int:
@@ -65,13 +70,13 @@ class Game:
 
         possible_moves = set()
         for direction in self.DIRS:
-            new_posn = piece + direction
-            while board[new_posn].value != board[piece].value:
-                if board[new_posn].value == ' ':
+            new_posn = piece.add(direction)
+            while self.getBoardValue(new_posn) != self.getBoardValue(piece):
+                if self.getBoardValue(new_posn) == ' ':
                     possible_moves.add(new_posn)
                     break
                 else:
-                    new_posn += direction
+                    new_posn = new_posn.add(direction)
 
         return possible_moves
 
@@ -104,8 +109,8 @@ class Game:
         player to take. 
         """
 
-        return self.board[posn].value == ' ' \
-               and posn in self.movesAvail(player) 
+        return (self.getBoardValue(posn) == ' ') \
+               and (posn in self.movesAvail(player)) 
 
 
     def affectedPieces(self, player: str, posn: Posn) -> set():
@@ -118,26 +123,29 @@ class Game:
         affected = set()
         for direction in self.DIRS:
             new_posns = set()
-            new_posn = piece + direction
-            while board[new_posn].value != board[posn].value and board[new_posn].value != ' ':
+            new_posn = posn.add(direction)
+            while self.getBoardValue(new_posn) != self.getBoardValue(posn) and self.getBoardValue(new_posn) != ' ':
                 new_posns.add(new_posn)
-                new_posn += direction
-                if board[new_posn].value == board[posn].value:
+                new_posn = new_posn.add(direction)
+                if self.getBoardValue(new_posn) == self.getBoardValue(posn):
                     new_posns.add(new_posn)
                     affected = affected | new_posns
 
         return affected
 
 
-    def makeMove(self, player: str, posn: Posn):
+    def makeMove(self, player: str, posn: Posn) -> bool:
         """
         Occupy the given posn and all affected posn's in the player's favor if allowed. 
         """
 
         if self.moveLegal(player, posn):
-            self.board[posn] = player
+            self.board.updatePosnStatus(posn, player)
             for piece in self.affectedPieces(player, posn):
-                self.board[piece] = player
+                self.board.updatePosnStatus(piece, player)
+            return True
+        else:
+            return False
 
 
     def noMovesAvail(self) -> bool:

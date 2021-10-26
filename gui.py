@@ -15,7 +15,7 @@ class GUI:
     buttons: dict()
 
 
-    def __init__(self, size:int):
+    def __init__(self, size: int):
         self.root = Tk()
         self.root.title("REVERSI")
         self.boardSize = size
@@ -32,7 +32,18 @@ class GUI:
         for posn in self.board.board.keys():
             b = self.buttons[posn]
             b["text"] = self.board.board[posn].value
-        #[lambda posn=(self.buttons[posn])["text"]:(self.board.board[posn]).value for posn in (self.board).board.keys()]
+        self.highlightPossibleMoves()
+
+    def highlightPossibleMoves(self):
+        if turn%2 == 0:
+            player = "w"
+        else:
+            player = "b"
+        moves = self.game.movesAvail(player)
+        for move in moves:
+            b = self.buttons[move]
+            b["bg"] = "blue"
+
 
     def buttonClick(self, b: Button):
         global turn
@@ -40,13 +51,16 @@ class GUI:
         Triggered on button click - makeMove(self, player: str, posn: Posn):
         Should first check if move is valid - moveLegal(self, player: str, posn: Posn) -> bool:
         Right now will just change the text
-        
-        if turn%2 == 0:
-            b["text"] = "w"
-        else:
-            b["text"] = "b"
-        turn += 1
         """
+        moveMade = False
+        bPosn = [key for key, value in self.buttons.items() if value == b][0]
+        if turn%2 == 0:
+            moveMade = self.game.makeMove("w", bPosn)
+        else:
+            moveMade = self.game.makeMove("b", bPosn)
+        if moveMade:
+            turn += 1
+        
         self.drawButtonValues()
     
 
