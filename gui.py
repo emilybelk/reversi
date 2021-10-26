@@ -26,9 +26,13 @@ class GUI:
                                     self.buttonClick(self.buttons[Posn(n, m)]))
                         for n in range(size) for m in range(size)}
         {self.buttons[Posn(n, m)].grid(row=n, column=m) for n in range(size) for m in range(size)}
+        self.drawButtonValues()
 
     def drawButtonValues(self):
-        [lambda posn=(self.buttons[posn])["text"]:(self.board.board[posn]).value for posn in (self.board).board.keys()]
+        for posn in self.board.board.keys():
+            b = self.buttons[posn]
+            b["text"] = self.board.board[posn].value
+        #[lambda posn=(self.buttons[posn])["text"]:(self.board.board[posn]).value for posn in (self.board).board.keys()]
 
     def buttonClick(self, b: Button):
         global turn
@@ -44,14 +48,6 @@ class GUI:
         turn += 1
         """
         self.drawButtonValues()
-
-    def generateButtons(self, rows: int, cols: int):
-        buttons = [[0 for x in range(rows)] for x in range(cols)]
-        for row in range(rows):
-            for col in range (cols):
-                buttons[row][col] = Button(self.root, text=" ", font=("Helvetica", 20), \
-                                    height=2, width=4, command=lambda row=row, col=col: self.buttonClick(buttons[row][col]))
-                buttons[row][col].grid(row = row, column = col)
     
 
     def main(self):
