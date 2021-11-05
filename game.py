@@ -60,24 +60,28 @@ class Game:
         Return the given player's score.
         """
 
-        return len(self.playerPieces())
+        return len(self.playerPieces(player))
 
 
     def movesAvailHelper(self, piece: Posn) -> set():
         """
         Return a set of all the moves available to be made because of this piece. 
         """
-
+        ### is space legal not working. Edge space moves are resulting in KeyError: <board.Posn object at 0x00000185CA1AE130>
         possible_moves = set()
         for direction in self.DIRS:
             new_posn = piece.add(direction)
-            while self.getBoardValue(new_posn) != self.getBoardValue(piece):
+            firstJump = True
+            while self.board.isSpaceLegal(new_posn) == True and self.getBoardValue(new_posn) != self.getBoardValue(piece):
                 if self.getBoardValue(new_posn) == ' ':
-                    possible_moves.add(new_posn)
-                    break
+                    if firstJump == True:
+                        break
+                    else:
+                        possible_moves.add(new_posn)
+                        break
                 else:
+                    firstJump = False
                     new_posn = new_posn.add(direction)
-
         return possible_moves
 
 
@@ -100,7 +104,7 @@ class Game:
         Return if there are any available moves for this player. 
         """
 
-        return len(movesAvail) > 0
+        return len(self.movesAvail(player)) > 0
 
     
     def moveLegal(self, player: str, posn: Posn) -> bool:
@@ -124,10 +128,10 @@ class Game:
         for direction in self.DIRS:
             new_posns = set()
             new_posn = posn.add(direction)
-            while self.getBoardValue(new_posn) != self.getBoardValue(posn) and self.getBoardValue(new_posn) != ' ':
+            while self.board.isSpaceLegal(new_posn) == True and self.getBoardValue(new_posn) != self.getBoardValue(posn) and self.getBoardValue(new_posn) != ' ':
                 new_posns.add(new_posn)
                 new_posn = new_posn.add(direction)
-                if self.getBoardValue(new_posn) == self.getBoardValue(posn):
+                if self.board.isSpaceLegal(new_posn) == True and self.getBoardValue(new_posn) == self.getBoardValue(posn):
                     new_posns.add(new_posn)
                     affected = affected | new_posns
 
@@ -161,7 +165,7 @@ class Game:
         Return if no spaces left empty on the board. 
         """
         
-        for posn, status in self.board.items():
+        for posn, status in self.board.board.items():
             if status.value == ' ':
                 return False
         
@@ -174,3 +178,11 @@ class Game:
         """
 
         return self.boardFull() or self.noMovesAvail()
+
+    def winner(self) -> str:
+        whiteScore = self.playerScore("w")
+        blackScore = self.playerScore("b")
+        if(whiteScore>blackScore):
+            return "w"
+        else:
+            return "b"

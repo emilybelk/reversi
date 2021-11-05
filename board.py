@@ -65,3 +65,9 @@ class Board:
 
     def updatePosnStatus(self, posn: Posn, status: str):
         self.board[posn] = Status(status)
+
+    def isSpaceLegal(self, posn: Posn):
+        if posn in self.board.keys():
+            return True
+        else:
+            return False

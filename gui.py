@@ -40,9 +40,29 @@ class GUI:
         else:
             player = "b"
         moves = self.game.movesAvail(player)
+        for key in self.buttons:
+            self.buttons[key]["bg"] = "white"
         for move in moves:
             b = self.buttons[move]
             b["bg"] = "blue"
+
+    def gameOver(self):
+        # self.root.withdraw() this line will make the base window invisible
+        go = Tk()
+        # following line makes the base window inactive
+        go.grab_set()
+        go.title("GAME OVER")
+        winner = self.game.winner()
+        whiteScore = self.game.playerScore("w")
+        blackScore = self.game.playerScore("b")
+        gameOver = Label(go, text = "GAME OVER", font=("Helvetica", 50))
+        gameOver.pack()
+        p1Score = Label(go, text = "White Score: " + str(whiteScore), font = ("Helvetica", 20))
+        p1Score.pack()
+        p2Score = Label(go, text = "Black Score: " + str(blackScore), font = ("Helvetica", 20))
+        p2Score.pack()
+        go.mainloop()
+    
 
 
     def buttonClick(self, b: Button):
@@ -62,6 +82,9 @@ class GUI:
             turn += 1
         
         self.drawButtonValues()
+        if self.game.endGame() == True:
+            self.gameOver()
+
     
 
     def main(self):
@@ -70,5 +93,5 @@ class GUI:
                                         # or rewrite generateButtons to accept one int
         self.root.mainloop()
 
-gui = GUI(8)
+gui = GUI(6)
 gui.main()
