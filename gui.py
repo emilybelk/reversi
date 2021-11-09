@@ -47,7 +47,7 @@ class GUI:
             b["bg"] = "blue"
 
     def gameOver(self):
-        # self.root.withdraw() this line will make the base window invisible
+        self.root.withdraw() #this line will make the base window invisible
         go = Tk()
         # following line makes the base window inactive
         go.grab_set()
