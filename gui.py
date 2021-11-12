@@ -30,6 +30,7 @@ class mainMenu:
     def validateLogin(self,username, password):
         print("username entered :", username.get())
         print("password entered :", password.get())
+        self.root.destroy()
         return
 
 

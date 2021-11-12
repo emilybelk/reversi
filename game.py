@@ -1,4 +1,5 @@
 from board import Board, Posn, Status
+from player import Player, Account
 
 """
 TODO:
@@ -36,10 +37,14 @@ class Game:
                                     (-1, 0),  (-1, -1)]]
 
     board: Board
+    player1: Player
+    player2: Player
 
 
     def __init__(self, board: Board):
         self.board = board
+        self.player1 = Player("w", Account("1", "2"))
+        self.player2 = Player("b", Account("1", "2"))
 
     def getBoardValue(self, space: Posn) ->str:
         """
@@ -47,15 +52,17 @@ class Game:
         """
         return self.board.board[space].value
 
-    def playerPieces(self, player: str) -> set():
+    def playerPieces(self, player: Player) -> set():
         """
         Return all the pieces that belong to the current player.
         """
 
-        return {k for k, v in self.board.board.items() if v.value == player}
+        playerColor = player.getColor()
+
+        return {k for k, v in self.board.board.items() if v.value == playerColor}
 
 
-    def playerScore(self, player: str) -> int:
+    def playerScore(self, player: Player) -> int:
         """
         Return the given player's score.
         """
@@ -85,7 +92,7 @@ class Game:
         return possible_moves
 
 
-    def movesAvail(self, player: str) -> set():
+    def movesAvail(self, player: Player) -> set():
         """
         Returns a set of Posn's where the given player could make a move. 
         A move is available if there is a free space that is in some way connected
@@ -99,7 +106,7 @@ class Game:
         return moves
 
 
-    def availMove(self, player: str) -> bool:
+    def availMove(self, player: Player) -> bool:
         """
         Return if there are any available moves for this player. 
         """
@@ -107,7 +114,7 @@ class Game:
         return len(self.movesAvail(player)) > 0
 
     
-    def moveLegal(self, player: str, posn: Posn) -> bool:
+    def moveLegal(self, player: Player, posn: Posn) -> bool:
         """
         Determine if the given posn is available and legal for the given
         player to take. 
@@ -117,7 +124,7 @@ class Game:
                and (posn in self.movesAvail(player)) 
 
 
-    def affectedPieces(self, player: str, posn: Posn) -> set():
+    def affectedPieces(self, player: Player, posn: Posn) -> set():
         """
         TODO
         Return a set containing all the affected pieces this player owns 
@@ -138,15 +145,16 @@ class Game:
         return affected
 
 
-    def makeMove(self, player: str, posn: Posn) -> bool:
+    def makeMove(self, player: Player, posn: Posn) -> bool:
         """
         Occupy the given posn and all affected posn's in the player's favor if allowed. 
         """
 
+
         if self.moveLegal(player, posn):
-            self.board.updatePosnStatus(posn, player)
+            self.board.updatePosnStatus(posn, player.getColor())
             for piece in self.affectedPieces(player, posn):
-                self.board.updatePosnStatus(piece, player)
+                self.board.updatePosnStatus(piece, player.getColor())
             return True
         else:
             return False
@@ -157,7 +165,7 @@ class Game:
         Return if no moves are available left in the game for either player. 
         """
 
-        return min(len(self.movesAvail('b')), len(self.movesAvail('w'))) == 0
+        return min(len(self.movesAvail(self.player2)), len(self.movesAvail(self.player1))) == 0
 
 
     def boardFull(self) -> bool:
@@ -180,9 +188,9 @@ class Game:
         return self.boardFull() or self.noMovesAvail()
 
     def winner(self) -> str:
-        whiteScore = self.playerScore("w")
-        blackScore = self.playerScore("b")
+        whiteScore = self.playerScore(self.player1)
+        blackScore = self.playerScore(self.player2)
         if(whiteScore>blackScore):
-            return "w"
+            return "Player 1 Wins!"
         else:
-            return "b"
+            return "Player 2 Wins!"
