@@ -3,16 +3,52 @@ from tkinter import messagebox
 from game import Game
 from board import Board, Posn, Status
 
+
 turn = 0
+
+class mainMenu:
+    """
+    Class for generating main menu UI
+    """
+    root: Tk
+
+
+    def __init__(self):
+        self.root = Tk()
+        self.root.title("WELCOME TO REVERSI")
+        signInLabel = Label(self.root, text = "Please Enter your Username and Password").grid(row = 0, column = 0)
+        usernameLabel = Label(self.root, text = "Username").grid(row = 0, column = 1)
+        username = StringVar()
+        usernameEntry = Entry(self.root, textvariable = username).grid(row = 0, column = 2)
+        passwordLabel = Label(self.root, text = "Password").grid(row = 1, column = 1)
+        password = StringVar()
+        passwordEntry = Entry(self.root, textvariable = password, show = '*').grid(row = 1, column = 2)
+
+        #login button
+        loginButton = Button(self.root, text="Login", command = lambda: self.validateLogin(username, password)).grid(row=4, column=0) 
+
+    def validateLogin(self,username, password):
+        print("username entered :", username.get())
+        print("password entered :", password.get())
+        self.root.destroy()
+
+
+    def main(self):
+        self.root.mainloop() 
+
+
+
 class GUI:
     """
-    Class for generating User Interface 
+    Class for generating gameplay UI
     """
     root: Tk
     boardSize: int
     board: Board
     game: Game
     buttons: dict()
+    whitePhoto: PhotoImage
+    blackPhoto: PhotoImage
 
 
     def __init__(self, size: int):
@@ -21,6 +57,9 @@ class GUI:
         self.boardSize = size
         self.board = Board(self.boardSize)
         self.game = Game(self.board)
+        self.whitePhoto = PhotoImage(file = r"C:\Users\jserp\Documents\GitHub\reversi\whiteCircle.png")
+        self.blackPhoto = PhotoImage(file = r"C:\Users\jserp\Documents\GitHub\reversi\blackCircle.png")
+
         self.buttons = {Posn(n, m): Button(self.root, text=" ", font=("Helvetica", 20), \
                                     height=2, width=4, command=lambda n=n, m=m: \
                                     self.buttonClick(self.buttons[Posn(n, m)]))
@@ -31,17 +70,27 @@ class GUI:
     def drawButtonValues(self):
         for posn in self.board.board.keys():
             b = self.buttons[posn]
-            b["text"] = self.board.board[posn].value
+            val = self.board.board[posn].value
+            if val == "w":
+                b["image"] = self.whitePhoto
+                b["height"] = 80
+                b["width"] = 68
+            elif val == "b":
+                b["image"] = self.blackPhoto
+                b["height"] = 80
+                b["width"] = 68
+            else:
+                b["text"] = val
         self.highlightPossibleMoves()
 
     def highlightPossibleMoves(self):
         if turn%2 == 0:
-            player = "w"
+            player = self.game.player1
         else:
-            player = "b"
+            player = self.game.player2
         moves = self.game.movesAvail(player)
         for key in self.buttons:
-            self.buttons[key]["bg"] = "white"
+            self.buttons[key]["bg"] = "grey"
         for move in moves:
             b = self.buttons[move]
             b["bg"] = "blue"
@@ -53,14 +102,16 @@ class GUI:
         go.grab_set()
         go.title("GAME OVER")
         winner = self.game.winner()
-        whiteScore = self.game.playerScore("w")
-        blackScore = self.game.playerScore("b")
+        whiteScore = self.game.playerScore(self.game.player1)
+        blackScore = self.game.playerScore(self.game.player2)
         gameOver = Label(go, text = "GAME OVER", font=("Helvetica", 50))
         gameOver.pack()
-        p1Score = Label(go, text = "White Score: " + str(whiteScore), font = ("Helvetica", 20))
+        p1Score = Label(go, text = "Player 1 Score: " + str(whiteScore), font = ("Helvetica", 20))
         p1Score.pack()
-        p2Score = Label(go, text = "Black Score: " + str(blackScore), font = ("Helvetica", 20))
+        p2Score = Label(go, text = "Player 2 Score: " + str(blackScore), font = ("Helvetica", 20))
         p2Score.pack()
+        winLabel = Label(go, text = winner, font = ("Helvetica", 20))
+        winLabel.pack()
         go.mainloop()
     
 
@@ -75,9 +126,9 @@ class GUI:
         moveMade = False
         bPosn = [key for key, value in self.buttons.items() if value == b][0]
         if turn%2 == 0:
-            moveMade = self.game.makeMove("w", bPosn)
+            moveMade = self.game.makeMove(self.game.player1, bPosn)
         else:
-            moveMade = self.game.makeMove("b", bPosn)
+            moveMade = self.game.makeMove(self.game.player2, bPosn)
         if moveMade:
             turn += 1
         
@@ -92,6 +143,9 @@ class GUI:
         rows = cols = self.boardSize    # could just pass boardsize for rows/cols, 
                                         # or rewrite generateButtons to accept one int
         self.root.mainloop()
+
+main = mainMenu()
+main.main()
 
 gui = GUI(6)
 gui.main()
