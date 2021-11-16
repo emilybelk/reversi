@@ -185,8 +185,10 @@ class GUI:
                                         # or rewrite generateButtons to accept one int
         self.root.mainloop()
 
+'''
 main = mainMenu()
 main.main()
+'''
 
 gui = GUI(6)
 gui.main()
