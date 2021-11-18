@@ -50,6 +50,8 @@ class mainMenu:
 
         #login button
         loginButton = Button(self.root, text="Login", command = lambda: self.validateLogin(username, password)).grid(row=4, column=0) 
+        registerButton = Button(self.root, text="Register", command = lambda: print("registered user")).grid(row = 4, column = 1)
+
 
     def validateLogin(self,username, password):
         print("username entered :", username.get())
@@ -62,7 +64,7 @@ class mainMenu:
         mycursor = mydb.cursor()
         mycursor.execute("USE reversi")
         insert_stmt = ("INSERT INTO user (username, password) VALUES (%s, %s)")
-        data = (username, password)
+        data = (username.get(), password.get())
         try: 
             mycursor.execute(insert_stmt, data)
             print("Updated table")
@@ -137,7 +139,7 @@ class GUI:
             b["bg"] = "blue"
 
     def gameOver(self):
-        self.root.withdraw() #this line will make the base window invisible
+        self.root.destroy() #this line will make the base window invisible
         go = Tk()
         # following line makes the base window inactive
         go.grab_set()
@@ -185,10 +187,10 @@ class GUI:
                                         # or rewrite generateButtons to accept one int
         self.root.mainloop()
 
-'''
+
 main = mainMenu()
 main.main()
-'''
+
 
 gui = GUI(6)
 gui.main()
