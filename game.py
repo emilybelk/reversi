@@ -39,12 +39,20 @@ class Game:
     board: Board
     player1: Player
     player2: Player
+    currPlayer: Player
 
 
     def __init__(self, board: Board):
         self.board = board
         self.player1 = Player("w", Account("1", "2"))
         self.player2 = Player("b", Account("1", "2"))
+        self.currPlayer = self.player1
+    
+    def nextPlayer(self):
+        if self.currPlayer == self.player1:
+            self.currPlayer = self.player2
+        else:
+            self.currPlayer = self.player1
 
     def getBoardValue(self, space: Posn) ->str:
         """
@@ -193,3 +201,10 @@ class Game:
             return "Player 1 Wins!"
         else:
             return "Player 2 Wins!"
+
+
+class OnlineGame(Game):
+    def __init__(self, board: Board):
+        self.board = board
+        self.player1 = Player("w", Account("1", "2"))
+        self.player2 = Player("b", Account("1", "2"))
