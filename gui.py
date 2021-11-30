@@ -10,7 +10,6 @@ from game import Game
 from board import Board, Posn, Status
 
 
-turn = 0
 
 #********* database ***********
 # Loads data into the database
@@ -239,6 +238,12 @@ class GUI:
         #    grid(sticky = "", row = int(self.boardSize/2)-1, column=int(self.boardSize/2)-2, columnspan=4, rowspan = 3)
         gameOver = Label(self.root,borderwidth=1, relief="solid", bg = "lightblue", fg = "black", text = "GAME OVER\n" + self.game.winner(), font=("Helvetica", 30)). \
             place(x = 68*(self.boardSize/2-2)+28, y = 82*self.boardSize/2-35)
+        restartButton = ttk.Button(self.root, text="Play Again", command = lambda: self.newGame()).place(x = 68*(self.boardSize/2-1)+35, y = 82*(self.boardSize/2+2)-35) 
+        
+    def newGame(self):
+        self.root.destroy()
+        gui = GUI(self.boardSize)
+        gui.main()
     '''
     def gameOver(self):
         self.deactivateBoard() #this line will make the base window invisible
@@ -278,6 +283,11 @@ class GUI:
         self.drawScore()
         if self.game.endGame() == True:
             self.gameOver()
+        else:
+            if(self.game.noMovesAvail(self.game.currPlayer) == True):
+                self.game.nextPlayer()
+                self.drawButtonValues()
+                self.drawScore()
 
     
 

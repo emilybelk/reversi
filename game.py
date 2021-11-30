@@ -166,12 +166,12 @@ class Game:
             return False
 
 
-    def noMovesAvail(self) -> bool:
+    def noMovesAvail(self, player: Player) -> bool:
         """
-        Return if no moves are available left in the game for either player. 
+        Return if no moves are available left in the game for this player. 
         """
 
-        return min(len(self.movesAvail(self.player2)), len(self.movesAvail(self.player1))) == 0
+        return len(self.movesAvail(player))  == 0
 
 
     def boardFull(self) -> bool:
@@ -191,7 +191,7 @@ class Game:
         Return if game is over. 
         """
 
-        return self.boardFull() or self.noMovesAvail()
+        return self.boardFull() or (self.noMovesAvail(self.player1) and self.noMovesAvail(self.player2))
 
     def winner(self) -> str:
         whiteScore = self.playerScore(self.player1)
