@@ -8,27 +8,10 @@ from tkinter import messagebox
 from tkinter import ttk
 from game import Game
 from board import Board, Posn, Status
+from database import init, registerUser, cleanup 
 
 
 
-#********* database ***********
-# Loads data into the database
-# returns connection to the database
-def init():
-    mydb = mysql.connector.connect(
-        host="localhost",
-        user="root"
-    )  
-    mydb.autocommit = True
-    mycursor = mydb.cursor()
-
-    load_ddl_str = open("ddl.sql").read()
-    load_ddl_data = load_ddl_str.split(';')
-
-    for i in load_ddl_data:
-        mycursor.execute(i)
-
-    return mydb
 
 class mainMenu:
     """
@@ -60,31 +43,12 @@ class mainMenu:
 
         spacer3 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 6, column = 0)
 
-
     def validateLogin(self,username, password):
         print("username entered :", username.get())
         print("password entered :", password.get())
         self.root.destroy()
         sc = SelectGamemode()
         sc.main()
-
-
-    def registerUser(mydb, username, password):
-    # credit to https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
-        mycursor = mydb.cursor()
-        mycursor.execute("USE reversi")
-        insert_stmt = ("INSERT INTO user (username, password) VALUES (%s, %s)")
-        data = (username.get(), password.get())
-        try: 
-            mycursor.execute(insert_stmt, data)
-            print("Updated table")
-            print("{:<15}{:<15}".format("username", "password"))
-            mycursor.execute("SELECT * FROM user")
-            for x in mycursor:
-                print("{:<15}{:<15}".format(x[0],x[1]))
-        except mysql.connector.Error as err:
-            print("Error: {}".format(err))
-
 
     def main(self):
         self.root.mainloop() 
