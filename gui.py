@@ -215,6 +215,7 @@ class GUI:
     def drawScore(self):
         self.p1ScoreLabel.config(text = str(self.game.player1.getColor())+ ": Player 1: " + str(self.game.playerScore(self.game.player1)))
         self.p2ScoreLabel.config(text = str(self.game.player2.getColor())+ ": Player 2: " + str(self.game.playerScore(self.game.player2)))
+        self.moveLabel.config(text = "Current Move: " + str(self.game.currPlayer.getColor()))
         '''
         self.scoreLabel = Label(self.root, bg = "lightblue", text = "Current Score", font=("Helvetica", 20)).grid(sticky = "w", row = 0, column = self.boardSize+1)
         self.p1ScoreLabel = Label(self.root, bg = "lightblue", text = str(self.game.player1.getColor())+ ": Player 1: " + str(self.game.playerScore(self.game.player1)), font=("Helvetica", 16)).grid(sticky = "nw", row = 1, column = self.boardSize+1)
