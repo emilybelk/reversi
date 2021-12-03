@@ -1,4 +1,6 @@
 from enum import Enum
+import copy
+
 
 class Status(Enum):
 
@@ -74,6 +76,8 @@ class Board:
 
         self.setWeights()
 
+    def copy(self):
+        return copy.deepcopy(self)
 
     def printBoard(self):
         print('\n'.join(''.join(self.board[Posn(n, m)].value for n in range(self.size)) for m in range(self.size)))
@@ -154,7 +158,6 @@ class Board:
                 else:
                     return True
             return False
-
 
 
     def setWeights(self):

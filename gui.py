@@ -10,6 +10,8 @@ from game import Game
 from board import Board, Posn, Status
 from database import init, registerUser, cleanup 
 
+import hashlib
+
 
 
 
@@ -39,16 +41,30 @@ class mainMenu:
 
         #Buttons
         loginButton = ttk.Button(self.root, text="Login", command = lambda: self.validateLogin(username, password)).grid(row=5, column=0) 
-        registerButton = ttk.Button(self.root, text="Register", command = lambda: print("registered user")).grid(row = 5, column = 1)
+        registerButton = ttk.Button(self.root, text="Register", command = lambda: self.RegisterUser(username, password)).grid(row = 5, column = 1)
 
         spacer3 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 6, column = 0)
 
     def validateLogin(self,username, password):
-        print("username entered :", username.get())
+        userUsername = username.get()
+        print("username entered :", username.get())       
+        userPassword = password.get()
         print("password entered :", password.get())
         self.root.destroy()
         sc = SelectGamemode()
         sc.main()
+
+    def registerUser(self, username, password):
+        userUsername = username.get()
+        print("username entered :", username.get())       
+        userPassword = password.get()
+        print("password entered :", password.get())
+        self.root.destroy()
+        sc = SelectGamemode()
+        sc.main()
+        # Hash and encode the password entered by the user
+        userPasswordHashed = hashlib.sha256(userPassword.encode())
+        userPassword = userPasswordHashed.hexdigest()
 
     def main(self):
         self.root.mainloop() 
@@ -107,6 +123,8 @@ class localSettings:
     def main(self):
         self.root.mainloop()
 
+
+### need to make board smaller for size 10 games
 
 class GUI:
     """

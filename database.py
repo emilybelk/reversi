@@ -26,18 +26,24 @@ def registerUser(mydb, username, password):
 # credit to https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
     mycursor = mydb.cursor()
     mycursor.execute("USE reversi")
-    insert_stmt = ("INSERT INTO user (username, password) VALUES (%s, %s)")
-    data = (username.get(), password.get())
+    insert_stmt = ("INSERT INTO user (username, password) VALUES (%(userUsername)s, %(userPassword)s)")
+    data = (userUsername, userPassword)
     try: 
         mycursor.execute(insert_stmt, data)
-        # print("Updated table")
-        # print("{:<15}{:<15}".format("username", "password"))
-    #     mycursor.execute("SELECT * FROM user")
-    #     for x in mycursor:
-    #         print("{:<15}{:<15}".format(x[0],x[1]))
-    # except mysql.connector.Error as err:
-    #     print("Error: {}".format(err))
+    except mysql.connector.Error as err:
+         print("Error: {}".format(err))
 
+def loginUser(mydb, username, password):
+	mycursor = mydb.cursor()
+    mycursor.execute("USE reversi")
+    try: 
+        mycursor.execute("SELECT userID from user WHERE username =%(userUsername)s AND password=%(userPassword)s")
+        result = cursor.fetchall()
+        return result
+    except mysql.connector.Error as err:
+         print("Error: {}".format(err))
+
+def updateUserInformation():    
 
 def cleanup(mydb):
     mycursor = mydb.cursor()
@@ -46,5 +52,5 @@ def cleanup(mydb):
     mydb.close()
     exit()
 
-db = init()
-cleanup(db)
+#db = init()
+#cleanup(db)

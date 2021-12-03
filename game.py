@@ -204,7 +204,13 @@ class Game:
 
 
 class OnlineGame(Game):
-    def __init__(self, board: Board):
-        self.board = board
-        self.player1 = Player("w", Account("1", "2"))
-        self.player2 = Player("b", Account("1", "2"))
+    """
+    Class to represent an online game where 
+    two clients are connected via a shared server.
+    """
+
+    game: Game
+
+    def __init__(self, game: Game):
+            self.game = game
+

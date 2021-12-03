@@ -1,60 +1,54 @@
-from os import SEEK_END
 import socket
+from player import Player
+import json
 
 class Client:
+    """
+    Class to represent a single client. 
+    A Client has:
+    - port int that represents the port that this client is connecting to. 
+    - ip str that represents the IP address of this client. (default is 127.0.0.1)
+    """
 
-    ClientSocket = socket.socket()
-    host = '127.0.0.1'
-    port = 1233
-
-    def __init__(self):
-        self.run()
-
-    def connectToServer(self):
-        try:
-            self.ClientSocket.connect((self.host, self.port))
-        except socket.error as e:
-            print(str(e))
+    port: int
+    ip: str
+    socket: socket
 
 
-    def sendMove(self, move: str):
-        Input = input('Say Something: ')
-        self.ClientSocket.send(str.encode(Input))
+    def __init__(self, player : Player, port: int, ip: str):
+        self.port = port
+        self.ip = ip
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect((ip, int(port)))
+        self.socket.sendall(player.name.encode('utf-8'))
 
-    def waitForMove(self):
+
+    def make_moves(self):
+        """
+        Do as told. 
+        """
+
+        new_move = self.receive_commands()
+        if new_move:
+            # TODO: make a move 
+            json_res = json.dumps(#MADE MOVE)
+            self.socket.sendall(json_res.encode('utf-8')))
+
+
+    def recieve_updates(self):
+        """
+        Wait to recieve game updates from the server. 
+        """
+
         while True:
-            Response = self.ClientSocket.recv(1024)
-            if not Response:
-                break
-            else:
-                Response = Response.decode('utf-8')
-                return Response
+            vals = ""
+            self.socket.settimeout(3)
+            try:
+                received = self.socket.recv(99999).rstrip()
+                if received:
+                    vals += received
+                    move = ijson.items(vals, '', multiple_values=True, use_float=True)
+                    return move
 
-    def run(self):
-        self.connectToServer()
-        resp = self.waitForMove()
-        print(resp)
-            
-        #self.ClientSocket.close()
-
-    def main(self):
-        print('Waiting for connection')
-        try:
-            self.ClientSocket.connect((self.host, self.port))
-        except socket.error as e:
-            print(str(e))
-
-        Response = self.ClientSocket.recv(1024)
-
-        
-        while True:
-            Input = input('Say Something: ')
-            self.ClientSocket.send(str.encode(Input))
-            Response = self.ClientSocket.recv(1024)
-            print(Response.decode('utf-8'))
-
-        ClientSocket.close()
-
-#client = Client()
-#client.connectToServer()
-#client.sendMove("hello")
+            except socket.timeout:
+                self.socket.close()
