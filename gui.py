@@ -330,7 +330,7 @@ class GUI:
                 self.drawButtonValues()
                 self.drawScore()
 
-    
+  
 
     def main(self):
         #buttons - will pass in board size
@@ -339,10 +339,14 @@ class GUI:
         self.root.mainloop()
 
 class AIGUI(GUI):
+
+    difficulty: int
+
     def __init__(self, size: int, diff: int):
         super().__init__(size)
         self.game = AIGame(self.board)
-        self.game.setDifficulty(diff)
+        self.difficulty = diff
+        self.game.setDifficulty(self.difficulty)
 
     def buttonClick(self, b: Button):
         """
@@ -366,6 +370,12 @@ class AIGUI(GUI):
                     self.drawButtonValues()
                     self.drawScore()
                     self.game.nextPlayer()
+                if self.game.endGame() == True:
+                    self.gameOver()
+                else:
+                    if(self.game.noMovesAvail(self.game.currPlayer) == True):
+                        self.game.nextPlayer()
+                        
             self.drawButtonValues()
             self.drawScore()
             if self.game.endGame() == True:
@@ -378,6 +388,10 @@ class AIGUI(GUI):
                     self.drawScore()
         threading.Thread(target = click).start()
 
+    def newGame(self): 
+        self.root.destroy()
+        gui = AIGUI(self.boardSize, self.difficulty)
+        gui.main() 
 
 main = mainMenu()
 main.main()
