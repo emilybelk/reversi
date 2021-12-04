@@ -45,6 +45,9 @@ class Posn:
     def getWeight(self):
         return self.weight
 
+    def printPosn(self):
+        print("row: " + str(self.n), "col: " + str(self.m))
+
 
 class Board:
     """

@@ -32,7 +32,7 @@ def registerUser(mydb, username, password):
         mycursor.execute(insert_stmt, data)
     except mysql.connector.Error as err:
          print("Error: {}".format(err))
-
+'''
 def loginUser(mydb, username, password):
 	mycursor = mydb.cursor()
     mycursor.execute("USE reversi")
@@ -54,3 +54,4 @@ def cleanup(mydb):
 
 #db = init()
 #cleanup(db)
+'''

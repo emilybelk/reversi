@@ -6,9 +6,13 @@ from datetime import datetime
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
-from game import Game
+from game import AIGame, Game
 from board import Board, Posn, Status
-from database import init, registerUser, cleanup 
+#from database import init, registerUser, cleanup 
+from database import init, registerUser
+import threading
+import time
+
 
 import hashlib
 
@@ -81,12 +85,16 @@ class SelectGamemode:
         spacer1 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 50)).grid(row = 1, column = 1)
         localButton = ttk.Button(self.root, text="Local", command = lambda: self.launchLocal()).grid(sticky = "e",row=2, column=0) 
         onlineButton = ttk.Button(self.root, text="Online", command = lambda: print("Online Game")).grid(row = 2, column = 1)
-        aiButton = ttk.Button(self.root, text="  AI  ", command = lambda: print("AI Game")).grid(sticky = "w",row = 2, column = 2)
+        aiButton = ttk.Button(self.root, text="  AI  ", command = lambda: self.launchAI()).grid(sticky = "w",row = 2, column = 2)
         spacer2 = Label(self.root, bg = 'lightblue',text = " ", font=("Helvetica", 10)).grid(row = 3, column = 1)
     def launchLocal(self):
         self.root.destroy()
         local = localSettings()
         local.main()
+    def launchAI(self):
+        self.root.destroy()
+        AI = AISettings()
+        AI.main()    
         
     def main(self):
         self.root.mainloop()
@@ -112,13 +120,63 @@ class localSettings:
         sizes = Label(self.root, bg = 'lightblue', text = "Select Board Size: ", font=("Helvetica", 12)).grid(sticky = "w",row = 2, column = 0)
         w = ttk.OptionMenu(self.root, boardSize, boardSizes[0], *boardSizes).grid(sticky = "w", row = 2, column = 1)
         spacer1 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 3, column = 1)
-        confirmButton = ttk.Button(self.root, text="Confirm", command = lambda: self.startGame(boardSize)).grid(sticky = "",row=4, column=1) 
-    
+        confirmButton = ttk.Button(self.root, text="Confirm", command = lambda: self.startGame(boardSize)).grid(sticky = "",row=4, column=1)
+
     def startGame(self, selectedSize):
+            self.root.destroy()
+            self.size = int(selectedSize.get())
+            gui = GUI(self.size)
+            gui.main()
+
+    def main(self):
+        self.root.mainloop()
+
+class AISettings:
+    root: Tk
+    size: int
+    difficulty: int
+    def __init__(self):
+        self.root = Tk()
+        self.root.eval('tk::PlaceWindow . center')
+        self.root.title("LOCAL SETTINGS")
+        self.root.geometry("400x200")
+        self.root.configure(bg = 'lightblue')
+        self.size = 6
+        hello = Label(self.root, bg = 'lightblue', text = "Choose Game Settings", font=("Helvetica", 20)).grid(sticky = "s",row = 0, column = 0)
+        boardSizes = [
+        "6",
+        "8",
+        "10"
+        ]
+        dif = [
+        "Easy",
+        "Medium",
+        "Hard"
+        ]  
+        
+        boardSize = StringVar(self.root)
+        DiffLevel = StringVar(self.root)
+        spacer1 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 20)).grid(row = 1, column = 1)
+        sizes = Label(self.root, bg = 'lightblue', text = "Select Board Size: ", font=("Helvetica", 12)).grid(sticky = "w",row = 2, column = 0)
+        w = ttk.OptionMenu(self.root, boardSize, boardSizes[0], *boardSizes).grid(sticky = "w", row = 2, column = 1)
+        levels = Label(self.root, bg = 'lightblue', text = "Select AI difficulty: ", font=("Helvetica", 12)).grid(sticky = "w",row = 3, column = 0)
+        y = ttk.OptionMenu(self.root, DiffLevel, dif[0], *dif).grid(sticky = "w", row = 3, column = 1)
+        spacer2 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 4, column = 1)
+        confirmButton = ttk.Button(self.root, text="Confirm", command = lambda: self.startAIGame(boardSize, DiffLevel)).grid(sticky = "",row=5, column=1)
+    
+
+    def startAIGame(self, selectedSize, selectedDiff):
         self.root.destroy()
         self.size = int(selectedSize.get())
-        gui = GUI(self.size)
-        gui.main()
+        diff = selectedDiff.get()
+        switcher = {
+        "Easy": 1,
+        "Medium": 2,
+        "Hard": 3,
+        }
+        self.difficulty = switcher.get(diff) 
+        AIgui = AIGUI(self.size, self.difficulty)
+        AIgui.main()
 
     def main(self):
         self.root.mainloop()
@@ -279,6 +337,46 @@ class GUI:
         rows = cols = self.boardSize    # could just pass boardsize for rows/cols, 
                                         # or rewrite generateButtons to accept one int
         self.root.mainloop()
+
+class AIGUI(GUI):
+    def __init__(self, size: int, diff: int):
+        super().__init__(size)
+        self.game = AIGame(self.board)
+        self.game.setDifficulty(diff)
+
+    def buttonClick(self, b: Button):
+        """
+        Triggered on button click - makeMove(self, player: str, posn: Posn):
+        Should first check if move is valid - moveLegal(self, player: str, posn: Posn) -> bool:
+        Right now will just change the text
+        """
+        def click():
+            moveMade = False
+            bPosn = [key for key, value in self.buttons.items() if value == b][0]
+            moveMade = self.game.makeMove(self.game.currPlayer, bPosn)
+            if moveMade:
+                self.game.nextPlayer()
+                self.drawButtonValues()
+                self.drawScore()
+                bestPosn = self.game.get_move(self.board.copy(),self.game.currPlayer)
+                moveMade = self.game.makeMove(self.game.currPlayer, bestPosn)
+                if moveMade:
+                    #if self.boardSize < 7 or self.game.difficulty < 3:
+                    time.sleep(2)
+                    self.drawButtonValues()
+                    self.drawScore()
+                    self.game.nextPlayer()
+            self.drawButtonValues()
+            self.drawScore()
+            if self.game.endGame() == True:
+                self.gameOver()
+            else:
+                if(self.game.noMovesAvail(self.game.currPlayer) == True):
+                    self.game.nextPlayer()
+                    moveMade = self.game.makeMove(self.game.currPlayer, self.game.get_move(self.board.copy(),self.game.currPlayer))
+                    self.drawButtonValues()
+                    self.drawScore()
+        threading.Thread(target = click).start()
 
 
 main = mainMenu()

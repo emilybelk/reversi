@@ -156,7 +156,6 @@ class Game:
         """
         Occupy the given posn and all affected posn's in the player's favor if allowed. 
         """
-
         if self.moveLegal(player, posn):
             self.board.updatePosnStatus(posn, player.getColor())
             for piece in self.affectedPieces(player, posn):
@@ -214,3 +213,170 @@ class OnlineGame(Game):
     def __init__(self, game: Game):
             self.game = game
 
+
+class AIGame(Game):
+    """
+    Class to represent AI game
+    Player 2 will always be AI
+    """
+    difficulty: int
+    
+    def __init__(self, board: Board):
+        super().__init__(board)
+        self.difficulty = 1
+    
+    def setDifficulty(self, dif: int):
+        self.difficulty = dif
+
+    def playerPiecesTest(self, board: Board, player: Player) -> set():
+        """
+        Return all the pieces that belong to the current player.
+        """
+        pColor = player.getColor()
+
+        return {k for k, v in board.board.items() if v.value == pColor}
+
+    def movesAvailHelperTest(self, board: Board, piece: Posn) -> set():
+        """
+        Return a set of all the moves available to be made because of this piece. 
+        """
+        ### is space legal not working. Edge space moves are resulting in KeyError: <board.Posn object at 0x00000185CA1AE130>
+        possible_moves = set()
+        for direction in self.DIRS:
+            new_posn = piece.add(direction)
+            firstJump = True
+            while board.isSpaceLegal(new_posn) == True and self.getTestBoardValue(board, new_posn) != self.getTestBoardValue(board, piece):
+                if self.getTestBoardValue(board, new_posn) == ' ':
+                    if firstJump == True:
+                        break
+                    else:
+                        possible_moves.add(new_posn)
+                        break
+                else:
+                    firstJump = False
+                    new_posn = new_posn.add(direction)
+        return possible_moves
+
+
+    def movesAvailTest(self, board: Board, player: Player) -> set():
+        """
+        Returns a set of Posn's where the given player could make a move. 
+        A move is available if there is a free space that is in some way connected
+        (horizontally, vertically, diagonally) to another one of this player's pieces. 
+        """
+        pieces = self.playerPiecesTest(board, player)
+        moves = set()
+        for piece in pieces:
+            moves = moves | self.movesAvailHelperTest(board, piece)
+        return moves
+
+    def getTestBoardValue(self, board: Board, space: Posn) ->str:
+        """
+        Returns test board value at given Posn
+        """
+        return board.board[space].value
+
+    def affectedPiecesTest(self, board: Board, player: Player, posn: Posn) -> set():
+        """
+        affected pieces for test board
+        """
+        affected = set()
+        for direction in self.DIRS:
+            new_posns = set()
+            new_posn = posn.add(direction)
+            while board.isSpaceLegal(new_posn) == True and self.getTestBoardValue(board, new_posn) != self.getTestBoardValue(board, posn) and self.getTestBoardValue(board, new_posn) != ' ':
+                new_posns.add(new_posn)
+                new_posn = new_posn.add(direction)
+                if self.board.isSpaceLegal(new_posn) == True and self.getTestBoardValue(board, new_posn) == self.getTestBoardValue(board, posn):
+                    new_posns.add(new_posn)
+                    affected = affected | new_posns
+
+        return affected
+
+
+    def testMove(self, board: Board, posn: Posn, player: Player):
+        if self.moveLegal(player, posn):
+            board.updatePosnStatus(posn, player.getColor())
+            for piece in self.affectedPiecesTest(board, player, posn):
+                board.updatePosnStatus(piece, player.getColor())
+            return True
+        else:
+            return False
+
+    def nextBoard(self, currBoard: Board, posn: Posn, player: Player) -> Board:
+        """
+        This function takes the current board, produces a copy with the possible move
+        """
+        nextBoard = currBoard.copy()
+        #print("Old Board")
+        #nextBoard.printBoard()
+        madeMove = self.testMove(nextBoard, posn, player)
+        #print("New Board")
+        #nextBoard.printBoard()
+        moves = self.movesAvailTest(nextBoard, player)
+        return nextBoard
+
+
+    def get_move(self, board: Board, player: Player):
+        return self.do_minimax_with_alpha_beta(board, player, self.difficulty, -100000, 100000)[1]
+
+
+    def evaluate(self, board: Board, player: Player):
+        oppPlayer = player
+        if player == self.player1:
+            oppPlayer = self.player2
+        else:
+            oppPlayer = self.player1
+        
+        pPieces = self.playerPiecesTest(board, player)
+        total = 0
+        for piece in pPieces:
+            total += piece.getWeight()
+        
+        oppPieces = self.playerPiecesTest(board, oppPlayer)
+        for piece in oppPieces:
+            total -= piece.getWeight()
+        return total
+
+    #Minimax with alpha-beta, based on lecture slides
+    def do_minimax_with_alpha_beta(self, board: Board, player: Player, depth: int, my_best, opp_best):
+        #This was for the statistics section. Commented it out now
+        #self.node_count += 1
+
+        if depth == 0:
+            return (self.evaluate(board, player), None)
+
+        moves = self.movesAvailTest(board, player)
+        
+        #This was for the statistics section. Commented it out now
+        #self.branches.append(len(move_list))
+
+        if len(moves) == 0:
+            return (self.evaluate(board, player), None)
+
+        best_score = my_best
+        best_move = None
+
+        for move in moves:
+            nextBoard = self.nextBoard(board, move, player)
+            #new_board = deepcopy(board)
+            #new_board.execute_move(move, color)
+
+            nextPlayer = player
+
+            if player == self.player1:
+                nextPlayer = self.player2
+            else:
+                nextPlayer = self.player1
+
+            try_tuple = self.do_minimax_with_alpha_beta(nextBoard, nextPlayer, depth-1, -opp_best, -best_score)
+            try_score = -try_tuple[0]
+
+            if try_score > best_score:
+                best_score = try_score
+                best_move = move
+
+            if best_score > opp_best:
+                return (best_score, best_move)
+
+        return (best_score, best_move)
