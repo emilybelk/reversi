@@ -3,55 +3,52 @@ import argparse
 import os
 from datetime import datetime
 
-
-# Loads data into the database
-# returns connection to the database
-def init():
+# function to register a user 
+def register_user(username, password):
     mydb = mysql.connector.connect(
         host="localhost",
         user="root"
     )  
-    mydb.autocommit = True
-    mycursor = mydb.cursor()
-
-    load_ddl_str = open("ddl.sql").read()
-    load_ddl_data = load_ddl_str.split(';')
-
-    for i in load_ddl_data:
-        mycursor.execute(i)
-
-    return mydb
-
-def registerUser(mydb, username, password):
-# credit to https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
     mycursor = mydb.cursor()
     mycursor.execute("USE reversi")
-    insert_stmt = ("INSERT INTO user (username, password) VALUES (%(userUsername)s, %(userPassword)s)")
-    data = (userUsername, userPassword)
+    sel = ("SELECT username FROM user WHERE username = %s")
+    seldata = (username,)
+    data = (username, password)
+    ins = ("INSERT INTO user (username, password) VALUES (%s, %s)")
     try: 
-        mycursor.execute(insert_stmt, data)
+        mycursor.execute(sel, seldata)
+        if mycursor.fetchall(): # checking if something found with this username
+            print('Username already exists')
+            return False
+        else:
+            try:
+                mycursor.execute(ins, data)
+                return True
+            except mysql.connector.Error as err:
+                print("Error: {}".format(err))
+                return False         
     except mysql.connector.Error as err:
-         print("Error: {}".format(err))
-'''
-def loginUser(mydb, username, password):
-	mycursor = mydb.cursor()
-    mycursor.execute("USE reversi")
-    try: 
-        mycursor.execute("SELECT userID from user WHERE username =%(userUsername)s AND password=%(userPassword)s")
-        result = cursor.fetchall()
-        return result
-    except mysql.connector.Error as err:
-         print("Error: {}".format(err))
+        print("Error: {}".format(err))
+        return False
 
-def updateUserInformation():    
-
-def cleanup(mydb):
+# function to help a user login 
+def login_user(username, password):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root"
+    )  
     mycursor = mydb.cursor()
-    mycursor.execute("DROP DATABASE reversi")
+    mycursor.execute("USE reversi")
+    exe = ("SELECT userID from user WHERE username =%s AND password=%s")
+    data = (username, password)
+    try: 
+        mycursor.execute(exe, data)        
+        return True
+    except mysql.connector.Error as err:
+        print("Error: {}".format(err))
+        print("Account not found")
+        return False
 
-    mydb.close()
-    exit()
+# def updateUserInformation():    
 
-#db = init()
-#cleanup(db)
-'''
+# result = mycursor.fetchall() -> fetching data from table

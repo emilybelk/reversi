@@ -208,10 +208,9 @@ class OnlineGame(Game):
     two clients are connected via a shared server.
     """
 
-    game: Game
-
     def __init__(self, game: Game):
-            self.game = game
+        super().__init__()
+        
 
 
 class AIGame(Game):

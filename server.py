@@ -10,14 +10,15 @@ class Server:
     """
 
     clients: tuple()
+    port: int
 
 
-    def run_server(self):
-        self.gather_clients()
-        if len(self.clients) == 2:
-            # TODO: run_game()
-        
-        # TODO: Return result of game
+    def __init__(self, port, clients):
+        self.clients = clients
+        self.port = port
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.bind(('127.0.0.1', int(port)))
+        self.socket.listen(50)
 
 
     def gather_clients(self):
@@ -35,3 +36,18 @@ class Server:
 
             except socket.timeout:
                 break
+
+    def get_pair(self):
+        
+        if len(self.clients) > 1:
+            return [self.clients.pop() for _ in range(2)]
+        else: 
+            return None
+
+
+    """
+    New OnlineGUI
+    Make a server and two clients with their IPs and a random port 
+    then each client on a players move will be updateds
+    """
+

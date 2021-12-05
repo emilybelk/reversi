@@ -20,35 +20,43 @@ class Client:
         self.ip = ip
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((ip, int(port)))
-        self.socket.sendall(player.name.encode('utf-8'))
 
 
-    def make_moves(self):
+    def send_move(self, pos: str):
         """
-        Do as told. 
+        send "row, col" 
+        call s.split() -> list(row, col)
         """
+        
+        self.socket.sendall(pos.encode('utf-8'))
 
-        new_move = self.receive_commands()
-        if new_move:
-            # TODO: make a move 
-            json_res = json.dumps(#MADE MOVE)
-            self.socket.sendall(json_res.encode('utf-8')))
-
-
-    def recieve_updates(self):
-        """
-        Wait to recieve game updates from the server. 
-        """
-
+    
+    def recieve_move(self, pos: str):
         while True:
-            vals = ""
             self.socket.settimeout(3)
             try:
                 received = self.socket.recv(99999).rstrip()
                 if received:
-                    vals += received
-                    move = ijson.items(vals, '', multiple_values=True, use_float=True)
-                    return move
+                    return recieved.split() # list(row, col)
 
             except socket.timeout:
                 self.socket.close()
+
+
+    # def recieve_updates(self):
+    #     """
+    #     Wait to recieve game updates from the server. 
+    #     """
+
+    #     while True:
+    #         vals = ""
+    #         self.socket.settimeout(3)
+    #         try:
+    #             received = self.socket.recv(99999).rstrip()
+    #             if received:
+    #                 vals += received
+    #                 move = ijson.items(vals, '', multiple_values=True, use_float=True)
+    #                 return move
+
+    #         except socket.timeout:
+    #             self.socket.close()

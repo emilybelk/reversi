@@ -8,10 +8,11 @@ from tkinter import messagebox
 from tkinter import ttk
 from game import AIGame, Game
 from board import Board, Posn, Status
-#from database import init, registerUser, cleanup 
-from database import init, registerUser
+import database as db
 import threading
 import time
+import PIL.Image
+import PIL.ImageTk
 
 
 import hashlib
@@ -44,31 +45,41 @@ class mainMenu:
         spacer2 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 4, column = 0)
 
         #Buttons
-        loginButton = ttk.Button(self.root, text="Login", command = lambda: self.validate_login(username, password)).grid(row=5, column=0) 
-        registerButton = ttk.Button(self.root, text="Register", command = lambda: self.RegisterUser(username, password)).grid(row = 5, column = 1)
+        loginButton = ttk.Button(self.root, text="Login", command = lambda: self.validate_login(username, password)).grid(sticky = 's', row=5, column=0) 
+        registerButton = ttk.Button(self.root, text="Register", command = lambda: self.register_user(username, password)).grid(sticky = 's', row = 5, column = 1)
 
         spacer3 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 6, column = 0)
 
     def validate_login(self,username, password):
-        userUsername = username.get()
-        print("username entered :", username.get())       
-        userPassword = password.get()
-        print("password entered :", password.get())
-        self.root.destroy()
-        sc = SelectGamemode()
-        sc.main()
+        username = username.get()
+        print("username entered: " +  username)       
+        password = password.get()
+        print("password entered: " + password)
+        val = db.login_user(username, password)
+        if val:
+            self.root.destroy()
+            sc = SelectGamemode()
+            sc.main()
+        else:
+            errorLabel = Label(self.root, bg = 'lightblue', fg = 'red', text = "Login Failed: Check Credentials ", font=("Helvetica", 10)).grid(sticky = "w",row = 4, column = 0, columnspan = 2)
 
     def register_user(self, username, password):
-        userUsername = username.get()
-        print("username entered :", username.get())       
-        userPassword = password.get()
-        print("password entered :", password.get())
-        self.root.destroy()
-        sc = SelectGamemode()
-        sc.main()
+        username = username.get()
+        print("username entered: " + username)       
+        password = password.get()
+        print("password entered: " + password)
         # Hash and encode the password entered by the user
-        userPasswordHashed = hashlib.sha256(userPassword.encode())
-        userPassword = userPasswordHashed.hexdigest()
+        userPasswordHashed = hashlib.sha256(password.encode())
+        password = userPasswordHashed.hexdigest()
+        val = db.register_user(username, password)
+        if val:
+            self.root.destroy()
+            sc = SelectGamemode()
+            sc.main()
+        else:
+            errorLabel = Label(self.root, bg = 'lightblue', fg = 'red', text = "Account already exists.", font=("Helvetica", 10)).grid(sticky = "w",row = 4, column = 0, columnspan = 2)
+
+        
 
     def main(self):
         self.root.mainloop() 
@@ -210,8 +221,10 @@ class GUI:
         self.boardSize = size
         self.board = Board(self.boardSize)
         self.game = Game(self.board)
-        self.whitePhoto = PhotoImage(file = r"C:\Users\jserp\Documents\GitHub\reversi\whiteCircle.png")
-        self.blackPhoto = PhotoImage(file = r"C:\Users\jserp\Documents\GitHub\reversi\blackCircle.png")
+        #self.whitePhoto = PhotoImage(file = r"C:\Users\jserp\Documents\GitHub\reversi\whiteCircle.png")
+        #self.blackPhoto = PhotoImage(file = r"C:\Users\jserp\Documents\GitHub\reversi\blackCircle.png")
+        self.whitePhoto = PIL.ImageTk.PhotoImage(PIL.Image.open('whiteCircle.png').convert('RGBA'))
+        self.blackPhoto = PIL.ImageTk.PhotoImage(PIL.Image.open('blackCircle.png').convert('RGBA'))
         self.scoreLabel = Label(self.root, bg = "lightblue", text = "Current Score", font=("Helvetica", 20))
         self.scoreLabel.grid(sticky = "w", row = 0, column = self.boardSize+1)
         self.p1ScoreLabel = Label(self.root, bg = "lightblue", text = str(self.game.player1.get_color())+ ": Player 1: " + str(self.game.player_score(self.game.player1)), font=("Helvetica", 16))
