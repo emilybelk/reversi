@@ -20,12 +20,12 @@ class Player:
         self.account = a
         self.score = 0
     
-    def getColor(self):
+    def get_color(self):
         return self.color
     
-    def setScore(self, newScore: int):
+    def set_score(self, newScore: int):
         self.score = newScore
 
-    def getScore(self):
+    def get_score(self):
         return self.score
 

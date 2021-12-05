@@ -39,13 +39,13 @@ class Posn:
     def add(self, posn):
         return Posn(self.n + posn.n, self.m + posn.m)
 
-    def setWeight(self, w):
+    def set_weight(self, w):
         self.weight = w
 
-    def getWeight(self):
+    def get_weight(self):
         return self.weight
 
-    def printPosn(self):
+    def print_posn(self):
         print("row: " + str(self.n), "col: " + str(self.m))
 
 
@@ -77,15 +77,15 @@ class Board:
         self.board[Posn(mid_index, mid_index + 1)] = Status.BLACK
         self.board[Posn(mid_index + 1, mid_index)] = Status.BLACK
 
-        self.setWeights()
+        self.set_weights()
 
     def copy(self):
         return copy.deepcopy(self)
 
-    def printBoard(self):
+    def print_board(self):
         print('\n'.join(''.join(self.board[Posn(n, m)].value for n in range(self.size)) for m in range(self.size)))
 
-    def printBoardWeights(self):
+    def print_board_weights(self):
         for n in range(self.size):
             for m in range(self.size):
                 for posn in self.board.keys():
@@ -93,16 +93,16 @@ class Board:
                         print(posn.getWeight(), end=' ')
             print('')
 
-    def updatePosnStatus(self, posn: Posn, status: str):
+    def update_posn_status(self, posn: Posn, status: str):
         self.board[posn] = Status(status)
 
-    def isSpaceLegal(self, posn: Posn):
+    def is_space_legal(self, posn: Posn):
         if posn in self.board.keys():
             return True
         else:
             return False
 
-    def isCornerSpace(self, posn: Posn):
+    def is_corner_space(self, posn: Posn):
         """
         Funtion to determine whether a space is a corner, used for weighting for AI algorithm
         Return true if coordinate n is 0 or max, and m is 0 or max
@@ -112,14 +112,14 @@ class Board:
         else:
             return False
 
-    def isCornerAdjacent(self, posn: Posn):
+    def is_corner_adjacent(self, posn: Posn):
         """
         Function to determine whether a space is corner adjacent, used for weighting in AI algo
         """
         for direction in self.DIRS:
             new_posn = posn.add(direction)
-            if(self.isSpaceLegal(new_posn)):
-                if(self.isCornerSpace(new_posn)):
+            if(self.is_space_legal(new_posn)):
+                if(self.is_corner_space(new_posn)):
                     return True
                 else:
                     continue
@@ -127,18 +127,18 @@ class Board:
                 continue
         return False
     
-    def isCornerAdjacentAdjacent(self, posn: Posn):
+    def is_corner_adjacent_adjacent(self, posn: Posn):
         """
         Funciton to determine if a space is next to the corner adjacent spaces, but not corners
         These will have higher weights than others
         """
         for direction in self.DIRS:
             new_posn = posn.add(direction)
-            if(self.isSpaceLegal(new_posn)):
-                if(self.isCornerSpace(new_posn)):
+            if(self.is_space_legal(new_posn)):
+                if(self.is_corner_space(new_posn)):
                     return False
                 else:
-                    if(self.isCornerAdjacent(new_posn)):
+                    if(self.is_corner_adjacent(new_posn)):
                         return True
                     else:
                         continue
@@ -146,33 +146,33 @@ class Board:
                 continue
         return False
 
-    def isEdge(self, posn:Posn):
+    def is_edge(self, posn:Posn):
         """
         Function to deterimine whether a space is an edge, but not a corner, or corner adjacent
         These will have higher weights than others
         """
-        if(self.isCornerSpace(posn) or self.isCornerAdjacent(posn)):
+        if(self.is_corner_space(posn) or self.is_corner_adjacent(posn)):
             return False
         else:
             for direction in self.DIRS:
                 new_posn = posn.add(direction)
-                if(self.isSpaceLegal(new_posn)): # need to make sure the adjacent space is outside the grid
+                if(self.is_space_legal(new_posn)): # need to make sure the adjacent space is outside the grid
                     continue
                 else:
                     return True
             return False
 
 
-    def setWeights(self):
+    def set_weights(self):
         for posn in self.board.keys():
-            if self.isCornerSpace(posn):
-                posn.setWeight(120)
-            elif(self.isCornerAdjacent(posn)):
-                posn.setWeight(-50)
-            elif(self.isCornerAdjacentAdjacent(posn) and self.isEdge(posn)):
-                posn.setWeight(20)
-            elif(self.isEdge(posn)):
-                posn.setWeight(10)
+            if self.is_corner_space(posn):
+                posn.set_weight(120)
+            elif(self.is_corner_adjacent(posn)):
+                posn.set_weight(-50)
+            elif(self.is_corner_adjacent_adjacent(posn) and self.is_edge(posn)):
+                posn.set_weight(20)
+            elif(self.is_edge(posn)):
+                posn.set_weight(10)
             else:
-                posn.setWeight(-5)
+                posn.set_weight(-5)
             
