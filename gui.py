@@ -55,6 +55,9 @@ class mainMenu:
         print("username entered: " +  username)       
         password = password.get()
         print("password entered: " + password)
+        # Hash and encode the password entered by the user
+        userPasswordHashed = hashlib.sha256(password.encode())
+        password = userPasswordHashed.hexdigest()
         val = db.login_user(username, password)
         if val:
             self.root.destroy()

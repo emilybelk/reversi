@@ -23,6 +23,7 @@ def register_user(username, password):
         else:
             try:
                 mycursor.execute(ins, data)
+                mydb.commit()
                 return True
             except mysql.connector.Error as err:
                 print("Error: {}".format(err))
@@ -42,12 +43,16 @@ def login_user(username, password):
     exe = ("SELECT userID from user WHERE username =%s AND password=%s")
     data = (username, password)
     try: 
-        mycursor.execute(exe, data)        
-        return True
+        mycursor.execute(exe, data)  
+        if mycursor.fetchall():      
+            return True
+        else:
+            print("Account not found")
+            return False
     except mysql.connector.Error as err:
         print("Error: {}".format(err))
-        print("Account not found")
         return False
+        
 
 # def updateUserInformation():    
 
