@@ -1,4 +1,4 @@
-#from client import Client
+from client import Client
 
 class Account:
     username: str
@@ -29,3 +29,9 @@ class Player:
     def get_score(self):
         return self.score
 
+class OnlinePlayer(Player):
+    
+    client: Client
+    def __init__(self, c: str, a: Account, port: int, ip: str):
+        super().__init__(c, a)
+        self.client = Client(port, ip)

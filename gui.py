@@ -13,14 +13,11 @@ import threading
 import time
 import PIL.Image
 import PIL.ImageTk
-
-
 import hashlib
+from server import *
+from client import Client
 
-
-
-
-class mainMenu:
+class LoginScreen:
     """
     Class for generating main menu UI
     """
@@ -98,7 +95,7 @@ class SelectGamemode:
         choose = Label(self.root, bg = 'lightblue', text = "Choose Gamemode", font=("Helvetica", 20)).grid(sticky = "",row = 0, column = 1)
         spacer1 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 50)).grid(row = 1, column = 1)
         localButton = ttk.Button(self.root, text="Local", command = lambda: self.launch_local()).grid(sticky = "e",row=2, column=0) 
-        onlineButton = ttk.Button(self.root, text="Online", command = lambda: print("Online Game")).grid(row = 2, column = 1)
+        onlineButton = ttk.Button(self.root, text="Online", command = lambda: self.launch_online()).grid(row = 2, column = 1)
         aiButton = ttk.Button(self.root, text="  AI  ", command = lambda: self.launch_AI()).grid(sticky = "w",row = 2, column = 2)
         spacer2 = Label(self.root, bg = 'lightblue',text = " ", font=("Helvetica", 10)).grid(row = 3, column = 1)
     def launch_local(self):
@@ -109,9 +106,43 @@ class SelectGamemode:
         self.root.destroy()
         AI = AISettings()
         AI.main()    
+    def launch_online(self):
+        self.root.destroy()
+        OL = onlineLobby()
+        OL.main()
         
     def main(self):
         self.root.mainloop()
+
+class onlineLobby:
+    root: Tk
+    client: Client
+    start_port: int
+    def __init__(self):
+        self.root = Tk()
+        self.root.eval('tk::PlaceWindow . center')
+        self.root.title("LOCAL SETTINGS")
+        self.root.geometry("400x200")
+        self.root.configure(bg = 'lightblue')
+        hello = Label(self.root, bg = 'lightblue', text = "Joining Game", font=("Helvetica", 20)).grid(sticky = "s",row = 0, column = 0)
+        self.client = Client(45678, '127.0.0.1')
+        self.start_port = 45678
+        #self.checkForGame()
+        
+
+    def checkForGame(self):
+        playerNum, new_port = self.client.wait_for_game()
+        #start = self.client.wait_for_start(new_port)
+        self.root.destroy()
+        gui = OnlineGUI(self.client, playerNum)
+        gui.main()
+
+    
+
+    def main(self):
+        self.root.after(20, self.checkForGame)
+        self.root.mainloop()
+        
 
 class localSettings:
     root: Tk
@@ -423,8 +454,46 @@ class AIGUI(GUI):
         gui = AIGUI(self.boardSize, self.difficulty)
         gui.main() 
 
-main = mainMenu()
+
+class OnlineGUI(GUI):  
+    """
+    Class for an online game
+    When a user requests to join an online game 
+    add them to a waiting queue of clients. As enough clients
+    populate pair them off and start games. 
+    """
+    game: OnlineGame
+    def __init__(self, client: Client, playerNum: int):
+        size = 8
+        super().__init__(size)
+        self.game = OnlineGame(self.board, client, playerNum)
+        if playerNum == 2:
+            oppMove = self.game.wait_for_move()
+            self.game.make_move(self.game.currPlayer, oppMove)
+
+    def button_click(self, b: Button):
+        def click():
+            moveMade = False
+            bPosn = [key for key, value in self.buttons.items() if value == b][0]
+            moveMade = self.game.make_move_online(self.game.currPlayer, bPosn)
+            if moveMade:
+                self.game.next_player()
+                self.draw_button_values()
+                self.draw_score()
+                oppMove = self.game.wait_for_move()
+                self.game.make_move(self.game.currPlayer, oppMove)
+            self.draw_button_values()
+            self.draw_score()
+            if self.game.end_game() == True:
+                self.game_over()
+            else:
+                if(self.game.no_moves_avail(self.game.currPlayer) == True):
+                    self.game.next_player()
+                    oppMove = self.game.wait_for_move()
+                    self.game.make_move(self.game.currPlayer, oppMove)
+                    self.draw_button_values()
+                    self.draw_score()
+        threading.Thread(target = click).start()
+
+main = LoginScreen()
 main.main()
-
-
-

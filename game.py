@@ -1,5 +1,7 @@
 from board import Board, Posn, Status
 from player import Player, Account
+from client import Client
+import socket
 
 """
 TODO:
@@ -207,10 +209,54 @@ class OnlineGame(Game):
     Class to represent an online game where 
     two clients are connected via a shared server.
     """
+    client: Client
+    socket: socket
+    localPlayer: Player
 
-    def __init__(self, game: Game):
-        super().__init__()
+    def __init__(self, board: Board, c1: Client, playerNum: int):
+        super().__init__(board)
+        self.client = c1
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        host = socket.gethostname()
+        self.socket.connect(("192.168.0.21", self.client.port))
+        if playerNum == 1:
+            self.localPlayer = self.player1
+        else:
+            self.localPlayer = self.player2
+
+    def send_move(self, pos: str):
+        """
+        send "row, col" 
+        call s.split() -> list(row, col)
+        """
         
+        self.socket.send(pos.encode('utf-8'))
+
+    def recieve_move(self):
+        while True:
+            self.socket.settimeout(120)
+            try:
+                received = self.socket.recv(99999).rstrip()
+                if received:
+                    return (received.decode('utf-8')).split() # list(row, col)
+
+            except socket.timeout:
+                self.socket.close()
+                return None
+
+    def make_move_online(self, player: Player, posn: Posn) -> bool:
+        """
+        Occupy the given posn and all affected posn's in the player's favor if allowed. 
+        """
+        moveMade = self.make_move(player, posn) #"row, colf"
+        if moveMade:
+            self.send_move(f"{posn.n}, {posn.m}")
+        else:
+            return False
+
+    def wait_for_move(self) -> Posn:
+        posn = self.recieve_move()
+        return Posn(posn[0], posn[1]) if posn else False
 
 
 class AIGame(Game):

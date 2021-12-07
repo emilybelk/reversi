@@ -1,5 +1,5 @@
 For demo:
     Working Project
-    Class Diagrams
-    Subsystems
+    Class Diagram
+    Subsystem
     Main Lessons Learned
