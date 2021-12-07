@@ -5,6 +5,8 @@ USE reversi;
 CREATE TABLE user (
   userID INT PRIMARY KEY AUTO_INCREMENT,
   elo INT,
+  wins INT,
+  losses INT,
   username VARCHAR(50),
   password VARCHAR(320)
 );
