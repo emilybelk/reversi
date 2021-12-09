@@ -11,27 +11,19 @@ CREATE TABLE user (
 );
 
 CREATE TABLE game (
-	#each square can be empty, white, or black
-	#use size and board state to see which goes where -> need to convert to x by y array
-
-	gameID INT,
+	gameID INT PRIMARY KEY,
 	userID INT,
-	CONSTRAINT FOREIGN KEY (userID) references user(userid),
+	CONSTRAINT FOREIGN KEY (userID) REFERENCES user(userid),
 	p1Score INT,
 	p2Score INT,
-	boardState BLOB, 
-	rules VARCHAR(50),
-	nextTurn TINYINT(1),
-	boardSize INT
-	PRIMARY KEY (userID, gameID)
+	nextTurn TINYINT(1)
 );
 
 CREATE TABLE ranking (
-	userID INT,
+	elo INT,	
+	userID INT PRIMARY KEY,
 	wins INT,
 	losses INT,
 	draws INT,
-	elo INT,
-	CONSTRAINT FOREIGN KEY (userID) references user(userID)
-	PRIMARY KEY (userID, elo)
-)
+	CONSTRAINT FOREIGN KEY (userID) REFERENCES user(userID)
+);
