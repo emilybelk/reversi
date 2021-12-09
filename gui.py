@@ -45,7 +45,10 @@ class LoginScreen:
         loginButton = ttk.Button(self.root, text="Login", command = lambda: self.validate_login(username, password)).grid(sticky = 's', row=5, column=0) 
         registerButton = ttk.Button(self.root, text="Register", command = lambda: self.register_user(username, password)).grid(sticky = 's', row = 5, column = 1)
 
-        spacer3 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 6, column = 0)
+        guestButton = ttk.Button(self.root, text="Continue as Guest", command = lambda: self.play_as_guest()).grid(sticky = 's', row = 6, column = 0)
+
+
+        spacer3 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 7, column = 0)
 
     def validate_login(self,username, password):
         username = username.get()
@@ -79,7 +82,10 @@ class LoginScreen:
         else:
             errorLabel = Label(self.root, bg = 'lightblue', fg = 'red', text = "Account already exists.", font=("Helvetica", 10)).grid(sticky = "w",row = 4, column = 0, columnspan = 2)
 
-        
+    def play_as_guest(self):
+        self.root.destroy()
+        sc = SelectGamemode()
+        sc.main()
 
     def main(self):
         self.root.mainloop() 
@@ -415,39 +421,51 @@ class AIGUI(GUI):
         Should first check if move is valid - moveLegal(self, player: str, posn: Posn) -> bool:
         Right now will just change the text
         """
-        def click():
-            moveMade = False
-            bPosn = [key for key, value in self.buttons.items() if value == b][0]
-            moveMade = self.game.make_move(self.game.currPlayer, bPosn)
-            if moveMade:
-                self.game.next_player()
-                self.draw_button_values()
-                self.draw_score()
-                bestPosn = self.game.get_move(self.board.copy(),self.game.currPlayer)
-                moveMade = self.game.make_move(self.game.currPlayer, bestPosn)
+        if (self.game.currPlayer != self.game.player2):
+            def click():
+                moveMade = False
+                bPosn = [key for key, value in self.buttons.items() if value == b][0]
+                moveMade = self.game.make_move(self.game.currPlayer, bPosn)
                 if moveMade:
-                    #if self.boardSize < 7 or self.game.difficulty < 3:
-                    time.sleep(2)
                     self.game.next_player()
                     self.draw_button_values()
                     self.draw_score()
+                    bestPosn = self.game.get_move(self.board.copy(),self.game.currPlayer)
+                    moveMade = self.game.make_move(self.game.currPlayer, bestPosn)
+                    if moveMade:
+                        #if self.boardSize < 7 or self.game.difficulty < 3:
+                        time.sleep(2)
+                        self.game.next_player()
+                        self.draw_button_values()
+                        self.draw_score()
+                    if self.game.end_game() == True:
+                        self.game_over()
+                    else:
+                        if(self.game.no_moves_avail(self.game.currPlayer) == True):
+                            self.game.next_player()
+                            
+                self.draw_button_values()
+                self.draw_score()
                 if self.game.end_game() == True:
                     self.game_over()
                 else:
                     if(self.game.no_moves_avail(self.game.currPlayer) == True):
                         self.game.next_player()
-                        
-            self.draw_button_values()
-            self.draw_score()
-            if self.game.end_game() == True:
-                self.game_over()
-            else:
-                if(self.game.no_moves_avail(self.game.currPlayer) == True):
-                    self.game.next_player()
-                    moveMade = self.game.make_move(self.game.currPlayer, self.game.get_move(self.board.copy(),self.game.currPlayer))
-                    self.draw_button_values()
-                    self.draw_score()
-        threading.Thread(target = click).start()
+                        moveMade = self.game.make_move(self.game.currPlayer, self.game.get_move(self.board.copy(),self.game.currPlayer))
+                        if moveMade:
+                            #if self.boardSize < 7 or self.game.difficulty < 3:
+                            time.sleep(2)
+                            self.game.next_player()
+                            self.draw_button_values()
+                            self.draw_score()
+                        if self.game.end_game() == True:
+                            self.game_over()
+                        else:
+                            if(self.game.no_moves_avail(self.game.currPlayer) == True):
+                                self.game.next_player()
+                        self.draw_button_values()
+                        self.draw_score()
+            threading.Thread(target = click).start()
 
     def new_game(self): 
         self.root.destroy()
