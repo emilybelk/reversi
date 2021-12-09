@@ -17,7 +17,13 @@ def init():
     load_ddl_str = open("ddl.sql").read()
     load_ddl_data = load_ddl_str.split(';')
 
+    load_dml_str = open("dml.sql").read()
+    load_dml_data = load_dml_str.split(';')    
+
     for i in load_ddl_data:
+        mycursor.execute(i)
+
+    for i in load_dml_data:
         mycursor.execute(i)
 
     return mydb
