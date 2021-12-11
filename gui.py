@@ -132,12 +132,22 @@ class Leaderboard:
         self.root = Tk()
         self.root.eval('tk::PlaceWindow . center')
         self.root.title("LEADERBOARD")
-        self.root.geometry("400x200")
+
         self.root.configure(bg = 'lightblue')
         hello = Label(self.root, bg = 'lightblue', text = "Leaderboard", font=("Helvetica", 20)).grid(sticky = "s",row = 0, column = 0)
         list = elo_display()
         table = Label(self.root, text = "Position     User     ELO").grid(row = 1, column = 0)
         r1= Label(self.root, text="1: " + str(list[0][0]) + "    " + str(list[0][1])).grid(row = 1, column = 0)
+        r2= Label(self.root, text="2: " + str(list[1][0]) + "    " + str(list[1][1])).grid(row = 2, column = 0)
+        r3= Label(self.root, text="3: " + str(list[2][0]) + "    " + str(list[2][1])).grid(row = 3, column = 0)
+        r4= Label(self.root, text="4: " + str(list[3][0]) + "    " + str(list[3][1])).grid(row = 4, column = 0)
+        r5= Label(self.root, text="5: " + str(list[4][0]) + "    " + str(list[4][1])).grid(row = 5, column = 0)
+        r6= Label(self.root, text="6: " + str(list[5][0]) + "    " + str(list[5][1])).grid(row = 6, column = 0)
+        r7= Label(self.root, text="7: " + str(list[6][0]) + "    " + str(list[6][1])).grid(row = 7, column = 0)
+        r8= Label(self.root, text="8: " + str(list[7][0]) + "    " + str(list[7][1])).grid(row = 8, column = 0)
+        r9= Label(self.root, text="9: " + str(list[8][0]) + "    " + str(list[8][1])).grid(row = 9, column = 0)
+        r10= Label(self.root, text="10: " + str(list[9][0]) + "    " + str(list[9][1])).grid(row = 10, column = 0)
+
 
     def main(self):
         self.root.mainloop()

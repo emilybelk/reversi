@@ -44,7 +44,7 @@ def elo_display():
     
     mycursor = mydb.cursor()
     mycursor.execute("USE reversi")
-    operation = ("SELECT username AND elo FROM ranking INNER JOIN user ON user.userID = ranking.userID ORDER BY elo DESC LIMIT 10")
+    operation = ("SELECT username , elo FROM ranking INNER JOIN user ON user.userID = ranking.userID ORDER BY elo DESC LIMIT 10")
     try: 
         mycursor.execute(operation)
         results = mycursor.fetchall()
