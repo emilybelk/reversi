@@ -34,9 +34,9 @@ player2_elo = 1000 # must pull current elo ratings of players
 k = 34 # a constant that determines how far the ratings can skew. We've chosen 34.
 winner = 1	# must pull winner from game
 
-elo_rating(player1_elo, player2_elo, K, winner)
+#elo_rating(player1_elo, player2_elo, K, winner)
 
-def elo_display
+def elo_display():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root"
@@ -44,12 +44,15 @@ def elo_display
     
     mycursor = mydb.cursor()
     mycursor.execute("USE reversi")
-    operation = ("SELECT username AND elo FROM ranking INNER JOIN user ON user.userID = elo.userID ORDER BY elo DESC LIMIT 10")
+    operation = ("SELECT username AND elo FROM ranking INNER JOIN user ON user.userID = ranking.userID ORDER BY elo DESC LIMIT 10")
     try: 
         mycursor.execute(operation)
-        for result in mycursor:
-        	print(f"{result[0]} ({result[1]})")
-		return True     
+        results = mycursor.fetchall()
+        for result in results:
+            print(result)
+            #print(f"{result[0]} ({result[1]})")
+            #results.append(result)
+        return results
     except mysql.connector.Error as err:
         print("Error: {}".format(err))
         return False

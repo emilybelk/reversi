@@ -16,6 +16,7 @@ import PIL.ImageTk
 import hashlib
 from server import *
 from client import Client
+from elo import elo_display
 
 class LoginScreen:
     """
@@ -103,6 +104,7 @@ class SelectGamemode:
         localButton = ttk.Button(self.root, text="Local", command = lambda: self.launch_local()).grid(sticky = "e",row=2, column=0) 
         onlineButton = ttk.Button(self.root, text="Online", command = lambda: self.launch_online()).grid(row = 2, column = 1)
         aiButton = ttk.Button(self.root, text="  AI  ", command = lambda: self.launch_AI()).grid(sticky = "w",row = 2, column = 2)
+        lbButton = ttk.Button(self.root, text="Leaderboard", command = lambda: self.launch_leaderboard()).grid(sticky = "w",row = 1, column = 0)
         spacer2 = Label(self.root, bg = 'lightblue',text = " ", font=("Helvetica", 10)).grid(row = 3, column = 1)
     def launch_local(self):
         self.root.destroy()
@@ -116,7 +118,27 @@ class SelectGamemode:
         self.root.destroy()
         OL = onlineLobby()
         OL.main()
+    def launch_leaderboard(self):
+        LB = Leaderboard()
+        LB.main()
         
+    def main(self):
+        self.root.mainloop()
+
+class Leaderboard:
+    root:Tk
+    
+    def __init__(self):
+        self.root = Tk()
+        self.root.eval('tk::PlaceWindow . center')
+        self.root.title("LEADERBOARD")
+        self.root.geometry("400x200")
+        self.root.configure(bg = 'lightblue')
+        hello = Label(self.root, bg = 'lightblue', text = "Leaderboard", font=("Helvetica", 20)).grid(sticky = "s",row = 0, column = 0)
+        list = elo_display()
+        table = Label(self.root, text = "Position     User     ELO").grid(row = 1, column = 0)
+        r1= Label(self.root, text="1: " + str(list[0][0]) + "    " + str(list[0][1])).grid(row = 1, column = 0)
+
     def main(self):
         self.root.mainloop()
 
