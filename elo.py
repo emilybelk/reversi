@@ -44,9 +44,11 @@ def elo_display
     
     mycursor = mydb.cursor()
     mycursor.execute("USE reversi")
-    operation = ("SELECT elo FROM ranking ORDER BY elo DESC LIMIT 10")
+    operation = ("SELECT username AND elo FROM ranking INNER JOIN user ON user.userID = elo.userID ORDER BY elo DESC LIMIT 10")
     try: 
         mycursor.execute(operation)
+        for result in mycursor:
+        	print(f"{result[0]} ({result[1]})")
 		return True     
     except mysql.connector.Error as err:
         print("Error: {}".format(err))
