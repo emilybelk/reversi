@@ -232,7 +232,7 @@ class AISettings:
     def __init__(self):
         self.root = Tk()
         self.root.eval('tk::PlaceWindow . center')
-        self.root.title("LOCAL SETTINGS")
+        self.root.title("AI SETTINGS")
         self.root.geometry("400x200")
         self.root.configure(bg = 'lightblue')
         self.size = 6
