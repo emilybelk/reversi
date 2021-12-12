@@ -136,17 +136,17 @@ class Leaderboard:
         self.root.configure(bg = 'lightblue')
         hello = Label(self.root, bg = 'lightblue', text = "Leaderboard", font=("Helvetica", 20)).grid(sticky = "s",row = 0, column = 0)
         list = elo_display()
-        table = Label(self.root, text = "Position     User     ELO").grid(row = 1, column = 0)
-        r1= Label(self.root, text="1: " + str(list[0][0]) + "    " + str(list[0][1])).grid(row = 1, column = 0)
-        r2= Label(self.root, text="2: " + str(list[1][0]) + "    " + str(list[1][1])).grid(row = 2, column = 0)
-        r3= Label(self.root, text="3: " + str(list[2][0]) + "    " + str(list[2][1])).grid(row = 3, column = 0)
-        r4= Label(self.root, text="4: " + str(list[3][0]) + "    " + str(list[3][1])).grid(row = 4, column = 0)
-        r5= Label(self.root, text="5: " + str(list[4][0]) + "    " + str(list[4][1])).grid(row = 5, column = 0)
-        r6= Label(self.root, text="6: " + str(list[5][0]) + "    " + str(list[5][1])).grid(row = 6, column = 0)
-        r7= Label(self.root, text="7: " + str(list[6][0]) + "    " + str(list[6][1])).grid(row = 7, column = 0)
-        r8= Label(self.root, text="8: " + str(list[7][0]) + "    " + str(list[7][1])).grid(row = 8, column = 0)
-        r9= Label(self.root, text="9: " + str(list[8][0]) + "    " + str(list[8][1])).grid(row = 9, column = 0)
-        r10= Label(self.root, text="10: " + str(list[9][0]) + "    " + str(list[9][1])).grid(row = 10, column = 0)
+        table = Label(self.root, text = "Position     User     ELO").grid(sticky = "w",row = 1, column = 0)
+        r1= Label(self.root, text="1:      " + str(list[0][0]) + "    " + str(list[0][1])).grid(sticky = "w",row = 2, column = 0)
+        r2= Label(self.root, text="2:      " + str(list[1][0]) + "    " + str(list[1][1])).grid(sticky = "w",row = 3, column = 0)
+        r3= Label(self.root, text="3:      " + str(list[2][0]) + "    " + str(list[2][1])).grid(sticky = "w",row = 4, column = 0)
+        r4= Label(self.root, text="4:      " + str(list[3][0]) + "    " + str(list[3][1])).grid(sticky = "w",row = 5, column = 0)
+        r5= Label(self.root, text="5:      " + str(list[4][0]) + "    " + str(list[4][1])).grid(sticky = "w",row = 6, column = 0)
+        r6= Label(self.root, text="6:      " + str(list[5][0]) + "    " + str(list[5][1])).grid(sticky = "w",row = 7, column = 0)
+        r7= Label(self.root, text="7:      " + str(list[6][0]) + "    " + str(list[6][1])).grid(sticky = "w",row = 8, column = 0)
+        r8= Label(self.root, text="8:      " + str(list[7][0]) + "    " + str(list[7][1])).grid(sticky = "w",row = 9, column = 0)
+        r9= Label(self.root, text="9:      " + str(list[8][0]) + "    " + str(list[8][1])).grid(sticky = "w",row = 10, column = 0)
+        r10= Label(self.root,text="10:     " + str(list[9][0]) + "    " + str(list[9][1])).grid(sticky = "w",row = 11, column = 0)
 
 
     def main(self):
@@ -185,6 +185,7 @@ class onlineLobby:
 class localSettings:
     root: Tk
     size: int
+    colors: str
     def __init__(self):
         self.root = Tk()
         self.root.eval('tk::PlaceWindow . center')
@@ -198,17 +199,26 @@ class localSettings:
         "8",
         "10"
         ] 
+        boardColors = [
+        "white/black",
+        "blue/orange",
+        "red/green"
+        ]
         boardSize = StringVar(self.root)
+        color = StringVar(self.root)
         spacer1 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 50)).grid(row = 1, column = 1)
         sizes = Label(self.root, bg = 'lightblue', text = "Select Board Size: ", font=("Helvetica", 12)).grid(sticky = "w",row = 2, column = 0)
         w = ttk.OptionMenu(self.root, boardSize, boardSizes[0], *boardSizes).grid(sticky = "w", row = 2, column = 1)
-        spacer1 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 3, column = 1)
-        confirmButton = ttk.Button(self.root, text="Confirm", command = lambda: self.start_game(boardSize)).grid(sticky = "",row=4, column=1)
+        #spacer1 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 3, column = 1)
+        colors = Label(self.root, bg = 'lightblue', text = "Select Board Colors: ", font=("Helvetica", 12)).grid(sticky = "w",row = 3, column = 0)
+        c = ttk.OptionMenu(self.root, color, boardColors[0], *boardColors).grid(sticky = "w", row = 3, column = 1)
+        confirmButton = ttk.Button(self.root, text="Confirm", command = lambda: self.start_game(boardSize, color)).grid(sticky = "",row=4, column=1)
 
-    def start_game(self, selectedSize):
+    def start_game(self, selectedSize, selectedColors):
             self.root.destroy()
             self.size = int(selectedSize.get())
-            gui = GUI(self.size)
+            self.colors = selectedColors.get()
+            gui = GUI(self.size, self.colors)
             gui.main()
 
     def main(self):
@@ -218,6 +228,7 @@ class AISettings:
     root: Tk
     size: int
     difficulty: int
+    colors: str
     def __init__(self):
         self.root = Tk()
         self.root.eval('tk::PlaceWindow . center')
@@ -236,29 +247,38 @@ class AISettings:
         "Medium",
         "Hard"
         ]  
+        boardColors = [
+        "white/black",
+        "blue/orange",
+        "red/green"
+        ]
         
         boardSize = StringVar(self.root)
         DiffLevel = StringVar(self.root)
+        color = StringVar(self.root)
         spacer1 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 20)).grid(row = 1, column = 1)
         sizes = Label(self.root, bg = 'lightblue', text = "Select Board Size: ", font=("Helvetica", 12)).grid(sticky = "w",row = 2, column = 0)
         w = ttk.OptionMenu(self.root, boardSize, boardSizes[0], *boardSizes).grid(sticky = "w", row = 2, column = 1)
         levels = Label(self.root, bg = 'lightblue', text = "Select AI difficulty: ", font=("Helvetica", 12)).grid(sticky = "w",row = 3, column = 0)
         y = ttk.OptionMenu(self.root, DiffLevel, dif[0], *dif).grid(sticky = "w", row = 3, column = 1)
-        spacer2 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 4, column = 1)
-        confirmButton = ttk.Button(self.root, text="Confirm", command = lambda: self.start_AI_game(boardSize, DiffLevel)).grid(sticky = "",row=5, column=1)
+        colors = Label(self.root, bg = 'lightblue', text = "Select Board Colors: ", font=("Helvetica", 12)).grid(sticky = "w",row = 4, column = 0)
+        c = ttk.OptionMenu(self.root, color, boardColors[0], *boardColors).grid(sticky = "w", row = 4, column = 1)
+        #spacer2 = Label(self.root, bg = 'lightblue', text = " ", font=("Helvetica", 10)).grid(row = 4, column = 1)
+        confirmButton = ttk.Button(self.root, text="Confirm", command = lambda: self.start_AI_game(boardSize, DiffLevel, color)).grid(sticky = "",row=5, column=1)
     
 
-    def start_AI_game(self, selectedSize, selectedDiff):
+    def start_AI_game(self, selectedSize, selectedDiff, selectedColors):
         self.root.destroy()
         self.size = int(selectedSize.get())
         diff = selectedDiff.get()
+        self.colors = selectedColors.get()
         switcher = {
         "Easy": 1,
         "Medium": 2,
         "Hard": 3,
         }
         self.difficulty = switcher.get(diff) 
-        AIgui = AIGUI(self.size, self.difficulty)
+        AIgui = AIGUI(self.size, self.difficulty, self.colors)
         AIgui.main()
 
     def main(self):
@@ -276,27 +296,41 @@ class GUI:
     board: Board
     game: Game
     buttons: dict()
-    whitePhoto: PhotoImage
-    blackPhoto: PhotoImage
+    p1Photo: PhotoImage
+    p2Photo: PhotoImage
     scoreLabel: Label
     p1ScoreLabel: Label
     p2ScoreLabel: Label
     moveLabel: Label
+    colors: str
 
 
-    def __init__(self, size: int):
+    def __init__(self, size: int, col: str):
         self.root = Tk()
         self.root.eval('tk::PlaceWindow . center')
         self.root.title("REVERSI")
         self.root.configure(bg = 'lightblue')
         #self.root.geometry("500x500")
         self.boardSize = size
+        self.colors = col
         self.board = Board(self.boardSize)
         self.game = Game(self.board)
         #self.whitePhoto = PhotoImage(file = r"C:\Users\jserp\Documents\GitHub\reversi\whiteCircle.png")
         #self.blackPhoto = PhotoImage(file = r"C:\Users\jserp\Documents\GitHub\reversi\blackCircle.png")
-        self.whitePhoto = PIL.ImageTk.PhotoImage(PIL.Image.open('whiteCircle.png').convert('RGBA'))
-        self.blackPhoto = PIL.ImageTk.PhotoImage(PIL.Image.open('blackCircle.png').convert('RGBA'))
+        boardColors = [
+        "white/black",
+        "blue/orange",
+        "red/green"
+        ]
+        if self.colors == "white/black":
+            self.p1Photo = PIL.ImageTk.PhotoImage(PIL.Image.open('whiteCircle.png').convert('RGBA'))
+            self.p2Photo = PIL.ImageTk.PhotoImage(PIL.Image.open('blackCircle.png').convert('RGBA'))
+        elif self.colors == "blue/orange":
+            self.p1Photo = PIL.ImageTk.PhotoImage(PIL.Image.open('blueCircle.png').convert('RGBA'))
+            self.p2Photo = PIL.ImageTk.PhotoImage(PIL.Image.open('orangeCircle.png').convert('RGBA'))
+        else:
+            self.p1Photo = PIL.ImageTk.PhotoImage(PIL.Image.open('redCircle.png').convert('RGBA'))
+            self.p2Photo = PIL.ImageTk.PhotoImage(PIL.Image.open('greenCircle.png').convert('RGBA'))
         self.scoreLabel = Label(self.root, bg = "lightblue", text = "Current Score", font=("Helvetica", 20))
         self.scoreLabel.grid(sticky = "w", row = 0, column = self.boardSize+1)
         self.p1ScoreLabel = Label(self.root, bg = "lightblue", text = str(self.game.player1.get_color())+ ": Player 1: " + str(self.game.player_score(self.game.player1)), font=("Helvetica", 16))
@@ -319,11 +353,11 @@ class GUI:
             b = self.buttons[posn]
             val = self.board.board[posn].value
             if val == "w":
-                b["image"] = self.whitePhoto
+                b["image"] = self.p1Photo
                 b["height"] = 82
                 b["width"] = 68
             elif val == "b":
-                b["image"] = self.blackPhoto
+                b["image"] = self.p2Photo
                 b["height"] = 82
                 b["width"] = 68
             else:
@@ -427,8 +461,8 @@ class AIGUI(GUI):
 
     difficulty: int
 
-    def __init__(self, size: int, diff: int):
-        super().__init__(size)
+    def __init__(self, size: int, diff: int, col: str):
+        super().__init__(size, col)
         self.game = AIGame(self.board)
         self.difficulty = diff
         self.game.set_difficulty(self.difficulty)
