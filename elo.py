@@ -29,12 +29,30 @@ def elo_rating (player1_elo, player2_elo, K, winner):
         player2_elo = player2_elo + k * (1 - p2)
       
   
-player1_elo = 1200 # must pull current elo ratings of players
-player2_elo = 1000 # must pull current elo ratings of players
+player1_elo = elo_pull() # must pull current elo ratings of players
+player2_elo = elo_pull() # must pull current elo ratings of players
 k = 34 # a constant that determines how far the ratings can skew. We've chosen 34.
-winner = 1	# must pull winner from game
+winner = 1	# must pull winner from game -> if online game works
 
 #elo_rating(player1_elo, player2_elo, K, winner)
+
+def elo_pull():
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root"
+    )  
+    
+    mycursor = mydb.cursor()
+    mycursor.execute("USE reversi")
+    operation = ("SELECT elo FROM ranking INNER JOIN user ON user.userID = ranking.userID WHERE username =%s")
+    try: 
+        mycursor.execute(operation, username)
+        results = mycursor.fetchall()
+        for result in results:
+        return results
+    except mysql.connector.Error as err:
+        print("Error: {}".format(err))
+        return False
 
 def elo_display():
     mydb = mysql.connector.connect(
